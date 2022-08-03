@@ -1,0 +1,4 @@
+name: Mc Chaos Plugin
+version: '${project.version}'
+main: mcchaosplugin.mcchaosplugin.McChaosPlugin
+api-version: 1.19
