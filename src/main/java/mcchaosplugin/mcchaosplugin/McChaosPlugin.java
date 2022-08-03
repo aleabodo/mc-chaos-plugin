@@ -9,12 +9,13 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public final class McChaosPlugin extends JavaPlugin implements Listener, EventExecutor {
+public final class McChaosPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
         Bukkit.getLogger().info("Hello overworld");
-        Bukkit.getPluginManager().registerEvent(PlayerRespawnEvent.class, this, EventPriority.NORMAL, this, this);
+        //Bukkit.getPluginManager().registerEvent(PlayerRespawnEvent.class, this, EventPriority.NORMAL, this, this);
+        Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     @Override
@@ -28,8 +29,8 @@ public final class McChaosPlugin extends JavaPlugin implements Listener, EventEx
     }
 
     //wofür ist das?
-    @Override
-    public void execute(@NotNull Listener listener, @NotNull Event event) throws EventException {
-
-    }
+    //@Override
+    //public void execute(@NotNull Listener listener, @NotNull Event event) throws EventException {
+    //
+    //}
 }
