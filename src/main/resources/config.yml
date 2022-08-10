@@ -1,0 +1,4 @@
+TNT_period: 1
+TNT_relative_spawn_height: 20
+TNT_spawn_player_distance: 20
+acceleration_constant: 18

@@ -2,3 +2,9 @@ name: McChaosPlugin
 version: '${project.version}'
 main: mcchaosplugin.mcchaosplugin.McChaosPlugin
 api-version: 1.19
+commands:
+  mcchaos:
+    description: TODO.
+    usage: TODO
+    permission: op
+    permission-message: &4 You don't have the permission to enable or disable the plugin.
