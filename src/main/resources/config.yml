@@ -1,4 +1,7 @@
 TNT_period: 1
 TNT_relative_spawn_height: 20
-TNT_spawn_player_distance: 20
+TNT_spawn_player_distance: 50
 acceleration_constant: 18
+horizontal_drag_factor: 0.98
+tnt_horizontal_speed: 5
+tnt_time_impact: 20

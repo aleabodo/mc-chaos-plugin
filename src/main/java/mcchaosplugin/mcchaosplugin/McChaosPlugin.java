@@ -27,8 +27,11 @@ public final class McChaosPlugin extends JavaPlugin implements Listener, Command
 
     private static int tntSpawnPeriod = 0;
     private static int tntRelativeSpawnHeight = 0;
-    private static int tntSpawnPlayerDistance = 0;
+    public static double tntSpawnPlayerDistance = 0;
     public static double accelerationConstant = 0;
+    public static double horizontalDragFactor = 0;
+    public static double tntHorizontalSpeed = 0;
+    public static double tntTimeToImpact = 0;
 
     public static void intiConfigVars() {
         //changing tntSpawnPeriod has no effect if the job is already scheduled
@@ -36,6 +39,9 @@ public final class McChaosPlugin extends JavaPlugin implements Listener, Command
         tntRelativeSpawnHeight = plugin.getConfig().getInt("TNT_relative_spawn_height");
         tntSpawnPlayerDistance = plugin.getConfig().getInt("TNT_spawn_player_distance");
         accelerationConstant = plugin.getConfig().getDouble("acceleration_constant");
+        horizontalDragFactor = plugin.getConfig().getDouble("horizontal_drag_factor");
+        tntHorizontalSpeed = plugin.getConfig().getDouble("tnt_horizontal_speed");
+        tntTimeToImpact = plugin.getConfig().getDouble("tnt_time_impact");
     }
 
     @Override
@@ -63,6 +69,10 @@ public final class McChaosPlugin extends JavaPlugin implements Listener, Command
                     diff.setY(0);
                     diff.setZ(shipPosition.getZ() - pz);
                     diff.normalize();
+
+                    spawnVelocity.setX(diff.getX());
+                    spawnVelocity.setZ(diff.getZ());
+
                     diff.multiply(tntSpawnPlayerDistance);
                     spawnLocation.setX(px + diff.getX());
                     spawnLocation.setZ(pz + diff.getZ());
@@ -73,14 +83,27 @@ public final class McChaosPlugin extends JavaPlugin implements Listener, Command
                     //=> heightDiff = 0.5 * g * timeToImpact^2
                     //=> sqrt(2* heightDiff/g) = timeToImpact
                     //We assume g = 18 m/s^2 (https://www.youtube.com/watch?v=aE9_YAXao3I)
-                    double timeToImpact = Math.sqrt(2.0 * heightDiff / accelerationConstant) * 20; //in ticks
-                    double vx = -diff.getX() / timeToImpact;
-                    double vz = -diff.getZ() / timeToImpact;
+                    double timeToImpact = Math.sqrt(2.0 * heightDiff / accelerationConstant) * 20; //in tick;
+                    //double vy = (0.5 * accelerationConstant * tntTimeToImpact * tntTimeToImpact - heightDiff) / tntTimeToImpact;
+                    //double invHorizontalDrag = 1/Math.pow(horizontalDragFactor, timeToImpact);
+                    //double vx = -diff.getX() / timeToImpact * invHorizontalDrag;
+                    //double vz = -diff.getZ() / timeToImpact * invHorizontalDrag;
+                    //double vx = -diff.getX() / timeToImpact;
+                    //double vz = -diff.getZ() / timeToImpact;
+                    //double vx = -diff.getX() * tntHorizontalSpeed;
+                    //double vz = -diff.getZ() * tntHorizontalSpeed;
+
+                    //double tntHorizontalSpeed = 4.26826 * 1/(Math.pow(heightDiff,0.268248));
+                    double tntHorizontalSpeed = 6/Math.sqrt(heightDiff)+ 0.0007 * heightDiff +0.55;
+                    tntHorizontalSpeed *= tntSpawnPlayerDistance/50.0; //50 = tested default distance
+                    spawnVelocity.multiply(-tntHorizontalSpeed);
 
                     getServer().getScheduler().runTask(this, () -> {
+                        //p.sendMessage(ChatColor.GREEN + "Spawning tnt at " + spawnLocation.getX() + " " + + spawnLocation.getY() + " " + spawnLocation.getZ());
                         TNTPrimed tnt = (TNTPrimed) world.spawnEntity(spawnLocation.toLocation(world), EntityType.PRIMED_TNT);
-                        tnt.setVelocity(new Vector(vx, 0, vz));
-                        tnt.setFuseTicks((int)timeToImpact + 20); //lies on ground for another 1 second
+                        tnt.setVelocity(new Vector(spawnVelocity.getX(), 0, spawnVelocity.getZ()));
+                        tnt.setFuseTicks((int)(timeToImpact + tntTimeToImpact)); //lies on ground for tntTimeToImpact
+                        //tnt.setFuseTicks((int)tntTimeToImpact); //lies on ground for another 1 second
                     });
                 }
             }
@@ -93,7 +116,7 @@ public final class McChaosPlugin extends JavaPlugin implements Listener, Command
                 return i;
             }
         }
-        return 0;
+        return -64;
     }
 
     @Override
